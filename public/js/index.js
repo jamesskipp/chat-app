@@ -3,6 +3,7 @@ const socket = io(); // eslint-disable-line no-undef
 const locationButton = $('#send-location');
 const messageForm = $('#message-form');
 const messages = $('#messages');
+const messageText = $('[name=message]');
 
 socket.on('connect', function connect() {
   console.log('Connected to server');
@@ -31,12 +32,6 @@ socket.on('newLocationMessage', function newLocationMessage(message) {
   messages.append(li);
 });
 
-socket.emit('createMessage', {
-  text: 'Great.',
-}, function ack(data) {
-  console.log('Got it', data);
-});
-
 messageForm.on('submit', function form(event) {
   event.preventDefault();
 
@@ -44,7 +39,7 @@ messageForm.on('submit', function form(event) {
     from: 'User',
     text: $('[name=message]').val(),
   }, function emitRes() {
-
+    messageText.val('');
   });
 });
 
@@ -53,12 +48,16 @@ locationButton.on('click', function checkIn() {
     return alert('Gelocation not supported on your browser ):');
   }
 
+  locationButton.attr('disabled', 'disabled').text('Sending...');
+
   return navigator.geolocation.getCurrentPosition(function geoSuccess(position) {
+    locationButton.removeAttr('disabled').text('Check In');
     socket.emit('createLocationMessage', {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     });
   }, function geoError() {
     alert('Geolocation was unable to fetch your location.');
+    locationButton.removeAttr('disabled').text('Check In');
   });
 });
