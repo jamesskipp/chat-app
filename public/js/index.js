@@ -2,8 +2,22 @@ const socket = io(); // eslint-disable-line no-undef
 
 const locationButton = $('#send-location');
 const messageForm = $('#message-form');
-const messages = $('#messages');
 const messageText = $('[name=message]');
+
+function scrollToBottom() {
+  const messages = $('#messages');
+  const newMessage = messages.children('li:last-child');
+
+  const clientHeight = messages.prop('clientHeight');
+  const scrollTop = messages.prop('scrollTop');
+  const scrollHeight = messages.prop('scrollHeight');
+  const newMessageHeight = newMessage.innerHeight();
+  const lastMessageHeight = newMessage.prev().innerHeight();
+
+  if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight) {
+    messages.scrollTop(scrollHeight);
+  }
+}
 
 socket.on('connect', function connect() {
   console.log('Connected to server');
@@ -23,6 +37,7 @@ socket.on('newMessage', function newMessage(message) {
   });
 
   $('#messages').append(html);
+  scrollToBottom();
 });
 
 socket.on('newLocationMessage', function newLocationMessage(message) {
@@ -35,6 +50,7 @@ socket.on('newLocationMessage', function newLocationMessage(message) {
   });
 
   $('#messages').append(html);
+  scrollToBottom();
 
   // const formattedTime = moment(message.createdAt).format('h:mm a');
   // const li = $('<li></li>');
