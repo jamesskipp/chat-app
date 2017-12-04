@@ -21,6 +21,7 @@ function scrollToBottom() {
 
 socket.on('connect', function connect() {
   const params = jQuery.deparam(window.location.search);
+  params.room = params.room.toLowerCase();
 
   socket.emit('join', params, (err) => {
     if (err) {
@@ -86,7 +87,6 @@ messageForm.on('submit', function form(event) {
   event.preventDefault();
 
   socket.emit('createMessage', {
-    from: 'User',
     text: $('[name=message]').val(),
   }, function emitRes() {
     messageText.val('');
